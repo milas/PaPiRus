@@ -6,16 +6,18 @@
 
 import smbus
 
-LM75B_ADDRESS             = 0x48
+LM75B_ADDRESS = 0x48
 
-LM75B_TEMP_REGISTER       = 0
-LM75B_CONF_REGISTER       = 1
-LM75B_THYST_REGISTER      = 2
-LM75B_TOS_REGISTER        = 3
+LM75B_TEMP_REGISTER = 0
+LM75B_CONF_REGISTER = 1
+LM75B_THYST_REGISTER = 2
+LM75B_TOS_REGISTER = 3
 
-LM75B_CONF_NORMAL         = 0
+LM75B_CONF_NORMAL = 0
+
 
 class LM75B(object):
+
     def __init__(self, address=LM75B_ADDRESS, busnum=1):
         self._address = address
         self._bus = smbus.SMBus(busnum)
@@ -36,8 +38,9 @@ class LM75B(object):
            used to write to /dev/epd/temperature"""
         raw = self._bus.read_word_data(self._address, LM75B_TEMP_REGISTER) & 0xFFFF
         raw = ((raw << 8) & 0xFF00) + (raw >> 8)
-        return (raw + 128) / 256 # round to nearest integer
+        return (raw + 128) / 256  # round to nearest integer
+
 
 if __name__ == "__main__":
     sens = LM75B()
-    print (sens.getTempC())
+    print(sens.getTempC())

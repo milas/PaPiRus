@@ -1,4 +1,4 @@
-#qCopyright 2013-2015 Pervasive Displays, Inc.
+# qCopyright 2013-2015 Pervasive Displays, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import os
 
 
 class EPDError(Exception):
+
     def __init__(self, value):
         self.value = value
 
@@ -43,7 +44,6 @@ to use:
   epd.display(image)  # tranfer image data
   epd.update()        # refresh the panel image - not deeed if auto=true
 """
-
 
     PANEL_RE = re.compile('^([A-Za-z]+)\s+(\d+\.\d+)\s+(\d+)x(\d+)\s+COG\s+(\d+)\s+FILM\s+(\d+)\s*$', flags=0)
 
@@ -79,7 +79,7 @@ to use:
         with open(os.path.join(self._epd_path, 'panel')) as f:
             line = f.readline().rstrip('\n')
             m = self.PANEL_RE.match(line)
-            if None == m:
+            if not m:
                 raise EPDError('invalid panel string')
             self._panel = m.group(1) + ' ' + m.group(2)
             self._width = int(m.group(3))
@@ -184,7 +184,6 @@ to use:
 
         if self.auto:
             self.update()
-
 
     def update(self):
         self._command('U')

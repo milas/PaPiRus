@@ -6,3 +6,12 @@ from papirus.textpos import PapirusTextPos
 from papirus.composite import PapirusComposite
 from papirus.readrtc import get_hwclock
 
+__all__ = [
+    'LM75B',
+    'Papirus',
+    'PapirusText',
+    'PapirusImage',
+    'PapirusTextPos',
+    'PapirusComposite',
+    'get_hwclock'
+]

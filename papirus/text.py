@@ -1,20 +1,17 @@
-import os
-import sys
-
 from PIL import Image, ImageDraw, ImageFont
 from papirus import Papirus
-import random
 
 WHITE = 1
 BLACK = 0
 
+
 class PapirusText():
 
-    def __init__(self, rotation = 0):
-        self.papirus = Papirus(rotation = rotation)
+    def __init__(self, rotation=0):
+        self.papirus = Papirus(rotation=rotation)
 
-    def write(self, text, size = 20, fontPath='/usr/share/fonts/truetype/freefont/FreeMono.ttf', maxLines = 100):
-        
+    def write(self, text, size=20, fontPath='/usr/share/fonts/truetype/freefont/FreeMono.ttf', maxLines=100):
+
         # initially set all white background
         image = Image.new('1', self.papirus.size, WHITE)
 
@@ -24,7 +21,7 @@ class PapirusText():
         font = ImageFont.truetype(fontPath, size)
 
         # Calculate the max number of char to fit on line
-        lineSize = (self.papirus.width / (size*0.65))
+        # lineSize = (self.papirus.width / (size * 0.65))
 
         currentLine = 0
         # unicode by default
@@ -46,7 +43,7 @@ class PapirusText():
 
         currentLine = 0
         for l in textLines:
-            draw.text( (0, size*currentLine) , l, font=font, fill=BLACK)
+            draw.text((0, size * currentLine), l, font=font, fill=BLACK)
             currentLine += 1
 
         self.papirus.display(image)

@@ -1,23 +1,21 @@
-import os
-import sys
-
 from PIL import Image
 from PIL import ImageOps
 from papirus import Papirus
 
+
 class PapirusImage():
 
-    def __init__(self, rotation = 0):
-        self.papirus = Papirus(rotation = rotation)
+    def __init__(self, rotation=0):
+        self.papirus = Papirus(rotation=rotation)
 
     def write(self, image):
         image = Image.open(image)
         image = ImageOps.grayscale(image)
 
         # crop to the middle
-        w,h = image.size
-        x = w / 2 - self.papirus.width / 2
-        y = h / 2 - self.papirus.height / 2
+        w, h = image.size
+        # x = w / 2 - self.papirus.width / 2
+        # y = h / 2 - self.papirus.height / 2
 
         rs = image
         if w != self.papirus.width or h != self.papirus.height:

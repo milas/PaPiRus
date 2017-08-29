@@ -1,10 +1,10 @@
 from PIL import Image
 from PIL import ImageOps
+
 from papirus import Papirus
 
 
-class PapirusImage():
-
+class PapirusImage(object):
     def __init__(self, rotation=0):
         self.papirus = Papirus(rotation=rotation)
 

@@ -1,50 +1,51 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from papirus import Papirus
 
 WHITE = 1
 BLACK = 0
 
 
-class PapirusText():
+class PapirusText(object):
+    DEFAULT_FONT_PATH = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'
 
     def __init__(self, rotation=0):
         self.papirus = Papirus(rotation=rotation)
 
-    def write(self, text, size=20, fontPath='/usr/share/fonts/truetype/freefont/FreeMono.ttf', maxLines=100):
-
+    def write(self, text, size=20, font_path=None, max_lines=100):
         # initially set all white background
         image = Image.new('1', self.papirus.size, WHITE)
 
         # prepare for drawing
         draw = ImageDraw.Draw(image)
 
-        font = ImageFont.truetype(fontPath, size)
+        font = ImageFont.truetype(font_path, size)
 
         # Calculate the max number of char to fit on line
         # lineSize = (self.papirus.width / (size * 0.65))
 
-        currentLine = 0
+        current_line = 0
         # unicode by default
-        textLines = [u""]
+        text_lines = [u""]
 
         # Compute each line
         for word in text.split():
             # Always add first word (even when it is too long)
-            if len(textLines[currentLine]) == 0:
-                textLines[currentLine] += word
-            elif (draw.textsize(textLines[currentLine] + " " + word, font=font)[0]) < self.papirus.width:
-                textLines[currentLine] += " " + word
+            if len(text_lines[current_line]) == 0:
+                text_lines[current_line] += word
+            elif (draw.textsize(text_lines[current_line] + " " + word, font=font)[0]) < self.papirus.width:
+                text_lines[current_line] += " " + word
             else:
                 # No space left on line so move to next one
-                textLines.append(u"")
-                if currentLine < maxLines:
-                    currentLine += 1
-                    textLines[currentLine] += word
+                text_lines.append(u"")
+                if current_line < max_lines:
+                    current_line += 1
+                    text_lines[current_line] += word
 
-        currentLine = 0
-        for l in textLines:
-            draw.text((0, size * currentLine), l, font=font, fill=BLACK)
-            currentLine += 1
+        current_line = 0
+        for l in text_lines:
+            draw.text((0, size * current_line), l, font=font, fill=BLACK)
+            current_line += 1
 
         self.papirus.display(image)
         self.papirus.update()

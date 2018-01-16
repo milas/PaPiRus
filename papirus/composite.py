@@ -1,90 +1,89 @@
-import os
-import sys
+import uuid
 
 from PIL import Image
 from PIL import ImageOps
-from papirus import Papirus
+
 from papirus import PapirusTextPos
-import uuid
+from papirus.sprite import Sprite
+
 
 WHITE = 1
 BLACK = 0
 
-# Class for holding the details of the img
-class DispImg():
-    def __init__(self, image, x, y, size):
-        self.image = image
-        self.x = x
-        self.y = y
-        self.size = size
-        self.endx = 0
-        self.endy = 0
 
-class PapirusComposite (PapirusTextPos):
+class RasterSprite(Sprite):
+    """
+    A raster image (e.g. PNG, JPG, BMP) object to be drawn on screen
+    """
+    def __init__(self, file_path, x, y, size):
+        super().__init__(x, y, size)
+        self.path = file_path
 
-    def __init__(self, autoUpdate = True, rotation = 0):
-        super(PapirusComposite, self).__init__(autoUpdate, rotation)
-        self.allImg = dict()
-        self.image = Image.new('1', self.papirus.size, WHITE)
 
-    def AddImg(self, image, x=0, y=0, size = (10,10), Id = None):
+class PapirusComposite(PapirusTextPos):
+    def __init__(self, panel, auto_update=True):
+        super(PapirusComposite, self).__init__(panel, auto_update)
+        self.image_cache = dict()
+        self.image = Image.new('1', self.panel.size, WHITE)
+
+    def add_raster_sprite(self, file_path, x=0, y=0, size=(10, 10), sprite_id=None):
         # Create a new Id if none is supplied
-        if Id == None:
-            Id = str(uuid.uuid4())
+        if sprite_id is None:
+            sprite_id = str(uuid.uuid4())
 
-        image = Image.open(image)
-        image = ImageOps.grayscale(image)
-        image = image.resize(size)
-        image = image.convert("1", dither=Image.FLOYDSTEINBERG)
+        file_path = Image.open(file_path)
+        file_path = ImageOps.grayscale(file_path)
+        file_path = file_path.resize(size)
+        file_path = file_path.convert("1", dither=Image.FLOYDSTEINBERG)
 
         # If the Id doesn't exist, add it  to the dictionary
-        if Id not in self.allImg:
-            self.allImg[Id] = DispImg(image, x, y, size)
+        if sprite_id not in self.image_cache:
+            self.image_cache[sprite_id] = RasterSprite(file_path, x, y, size)
             # add the img to the image
-            self.addToImageImg(Id)
-            #Automatically show?
-            if self.autoUpdate:
-                self.WriteAll()
+            self.draw_sprite_from_cache(sprite_id)
+            # Automatically show?
+            if self.auto_update:
+                self.write_all()
 
-    def UpdateImg(self, Id, image):
+    def update_sprite(self, sprite_id, image):
         # If the ID supplied is in the dictionary, update the img
         # Currently ONLY the img is update
-        if Id in self.allImg:
+        if sprite_id in self.image_cache:
             image = Image.open(image)
             image = ImageOps.grayscale(image)
-            image = image.resize(self.allImg[Id].size)
+            image = image.resize(self.image_cache[sprite_id].size)
             image = image.convert("1", dither=Image.FLOYDSTEINBERG)
 
-            self.allImg[Id].image = image
-            
+            self.image_cache[sprite_id].image = image
+
             # Remove from the old img from the image (that doesn't use the actual img)
-            self.removeImageImg(Id)
+            self.erase_sprite_from_image(sprite_id)
             # Add the new img to the image
-            self.addToImageImg(Id)
-            #Automatically show?
-            if self.autoUpdate:
-                self.WriteAll()
+            self.draw_sprite_from_cache(sprite_id)
+            # Automatically show?
+            if self.auto_update:
+                self.write_all()
 
-    def RemoveImg(self, Id):
+    def remove_sprite(self, sprite_id):
         # If the ID supplied is in the dictionary, remove it.
-        if Id in self.allImg:
-            self.removeImageImg(Id)
-            del self.allImg[Id]
+        if sprite_id in self.image_cache:
+            self.erase_sprite_from_image(sprite_id)
+            del self.image_cache[sprite_id]
 
-            #Automatically show?
-            if self.autoUpdate:
-                self.WriteAll()
+            # Automatically show?
+            if self.auto_update:
+                self.write_all()
 
-    def removeImageImg(self, Id):
+    def erase_sprite_from_image(self, sprite_id):
         # prepare for drawing
-        filler = Image.new('1', self.allImg[Id].size, WHITE)
+        filler = Image.new('1', self.image_cache[sprite_id].size, WHITE)
         # Draw over the top of the img with a rectangle to cover it
-        x =  self.allImg[Id].x
-        y =  self.allImg[Id].y
-        self.image.paste(filler,(x,y))
+        x = self.image_cache[sprite_id].x
+        y = self.image_cache[sprite_id].y
+        self.image.paste(filler, (x, y))
 
-    def addToImageImg(self, Id):
-        x =  self.allImg[Id].x
-        y =  self.allImg[Id].y
+    def draw_sprite_from_cache(self, sprite_id):
+        x = self.image_cache[sprite_id].x
+        y = self.image_cache[sprite_id].y
 
-        self.image.paste(self.allImg[Id].image,(x,y))
+        self.image.paste(self.image_cache[sprite_id].image, (x, y))

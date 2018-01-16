@@ -1,17 +1,13 @@
 from __future__ import division
 
-import os
-import sys
-
 from PIL import Image
-from papirus import Papirus
 
 WHITE = 1
 
-class PapirusImage():
 
-    def __init__(self, rotation = 0):
-        self.papirus = Papirus(rotation = rotation)
+class PapirusImage(object):
+    def __init__(self, panel):
+        self.panel = panel
 
     def write(self, imagefile):
         fileimg = Image.open(imagefile)
@@ -19,14 +15,14 @@ class PapirusImage():
         w,h = fileimg.size
 
         rsimg = fileimg
-        if w > self.papirus.width or h > self.papirus.height:
-            rsimg.thumbnail(self.papirus.size)
+        if w > self.panel.width or h > self.panel.height:
+            rsimg.thumbnail(self.panel.size)
 
-        xpadding = (self.papirus.width  - rsimg.size[0]) // 2
-        ypadding = (self.papirus.height - rsimg.size[1]) // 2
+        xpadding = (self.panel.width - rsimg.size[0]) // 2
+        ypadding = (self.panel.height - rsimg.size[1]) // 2
 
-        image = Image.new('1', self.papirus.size, WHITE)
+        image = Image.new('1', self.panel.size, WHITE)
         image.paste(rsimg, (xpadding, ypadding))
 
-        self.papirus.display(image)
-        self.papirus.update()
+        self.panel.display(image)
+        self.panel.update()

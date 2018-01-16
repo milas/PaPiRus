@@ -4,8 +4,6 @@
 # by this module
 #
 
-import smbus
-
 LM75B_ADDRESS = 0x48
 
 LM75B_TEMP_REGISTER = 0
@@ -18,6 +16,8 @@ LM75B_CONF_NORMAL = 0
 
 class LM75B(object):
     def __init__(self, address=LM75B_ADDRESS, busnum=1):
+        import smbus
+
         self._address = address
         self._bus = smbus.SMBus(busnum)
         self._bus.write_byte_data(self._address, LM75B_CONF_REGISTER, LM75B_CONF_NORMAL)

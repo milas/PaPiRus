@@ -23,20 +23,19 @@ class TextSprite(Sprite):
 class PapirusTextPos(object):
     DEFAULT_FONT_PATH = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'
 
-    def __init__(self, auto_update=True, rotation=0):
-        # Set up the PaPirus and dictionary for text
-        self.papirus = Papirus(rotation=rotation)
+    def __init__(self, panel, auto_update=True):
+        self.panel = panel
         self.text_cache = dict()
-        self.image = Image.new('1', self.papirus.size, WHITE)
+        self.image = Image.new('1', self.panel.size, WHITE)
         self.auto_update = auto_update
         self.partial_updates = False
 
-    def add_text(self, text, x=0, y=0, size=20, text_id=None, invert=False, font_path=None, max_lines=100):
+    def add_text_sprite(self, text, x=0, y=0, size=20, text_id=None, invert=False, font_path=None, max_lines=100):
         # Create a new Id if none is supplied
         if text_id is None:
             text_id = str(uuid.uuid4())
 
-        # If the Id doesn't exist, add it  to the dictionary
+        # If the Id doesn't exist, add it to the dictionary
         if text_id not in self.text_cache:
             self.text_cache[text_id] = TextSprite(text, x, y, size, invert)
             # add the text to the image
@@ -44,6 +43,16 @@ class PapirusTextPos(object):
             # Automatically show?
             if self.auto_update:
                 self.write_all()
+        else:
+            sprite = self.text_cache[text_id]
+            if sprite.x != x or sprite.y != y or sprite.size != size or sprite.invert != invert:
+                self._remove_text_from_image(text_id)
+                del self.text_cache[text_id]
+                self.add_text_sprite(text, x, y, size, text_id, invert, font_path)
+            elif sprite.text != text:
+                self.update_text(text_id, text, font_path, max_lines)
+
+        return self.text_cache[text_id]
 
     def update_text(self, text_id, new_text, font_path=None, max_lines=100):
         # If the ID supplied is in the dictionary, update the text
@@ -58,6 +67,8 @@ class PapirusTextPos(object):
             # Automatically show?
             if self.auto_update:
                 self.write_all()
+
+            return self.text_cache[text_id]
 
     def remove_text(self, text_id):
         # If the ID supplied is in the dictionary, remove it.
@@ -96,7 +107,7 @@ class PapirusTextPos(object):
 
         # Calculate the max number of char to fit on line
         # Taking in to account the X starting position
-        line_width = self.papirus.width - x
+        line_width = self.panel.width - x
 
         # Starting vars
         current_line = 0
@@ -147,7 +158,7 @@ class PapirusTextPos(object):
             self.text_cache[text_id].endy += size
             # If next line does not fit, quit
             current_line += 1
-            if self.text_cache[text_id].endy > (self.papirus.height - size - 3):
+            if self.text_cache[text_id].endy > (self.panel.height - size - 3):
                 del text_lines[current_line:]
                 break
 
@@ -170,14 +181,14 @@ class PapirusTextPos(object):
     def write_all(self, partial_update=False):
         # Push the image to the PaPiRus device, and update only what's needed
         # (unless asked to do a full update)
-        self.papirus.display(self.image)
+        self.panel.display(self.image)
         if partial_update or self.partial_updates:
-            self.papirus.partial_update()
+            self.panel.partial_update()
         else:
-            self.papirus.update()
+            self.panel.update()
 
     def clear(self):
         # clear the image, clear the text items, do a full update to the screen
-        self.image = Image.new('1', self.papirus.size, WHITE)
+        self.image = Image.new('1', self.panel.size, WHITE)
         self.text_cache = dict()
-        self.papirus.clear()
+        self.panel.clear()

@@ -5,6 +5,8 @@ from papirus.image import PapirusImage
 from papirus.textpos import PapirusTextPos
 from papirus.composite import PapirusComposite
 from papirus.readrtc import get_hwclock
+from papirus.panel import Panel
+from papirus.emulated import EmulatedPanel
 
 __all__ = [
     'LM75B',
@@ -13,5 +15,7 @@ __all__ = [
     'PapirusImage',
     'PapirusTextPos',
     'PapirusComposite',
+    'Panel',
+    'EmulatedPanel',
     'get_hwclock'
 ]

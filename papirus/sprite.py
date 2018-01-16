@@ -1,7 +1,7 @@
-import abc
+# import abc
 
 
-class Sprite(abc.ABC):
+class Sprite(object):
     """
     Base class for object to be drawn on screen
     """

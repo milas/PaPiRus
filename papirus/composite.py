@@ -21,24 +21,24 @@ class RasterSprite(Sprite):
 
 
 class PapirusComposite(PapirusTextPos):
-    def __init__(self, auto_update=True, rotation=0):
-        super(PapirusComposite, self).__init__(auto_update, rotation)
+    def __init__(self, panel, auto_update=True):
+        super(PapirusComposite, self).__init__(panel, auto_update)
         self.image_cache = dict()
-        self.image = Image.new('1', self.papirus.size, WHITE)
+        self.image = Image.new('1', self.panel.size, WHITE)
 
-    def add_raster_sprite(self, image, x=0, y=0, size=(10, 10), sprite_id=None):
+    def add_raster_sprite(self, file_path, x=0, y=0, size=(10, 10), sprite_id=None):
         # Create a new Id if none is supplied
         if sprite_id is None:
             sprite_id = str(uuid.uuid4())
 
-        image = Image.open(image)
-        image = ImageOps.grayscale(image)
-        image = image.resize(size)
-        image = image.convert("1", dither=Image.FLOYDSTEINBERG)
+        file_path = Image.open(file_path)
+        file_path = ImageOps.grayscale(file_path)
+        file_path = file_path.resize(size)
+        file_path = file_path.convert("1", dither=Image.FLOYDSTEINBERG)
 
         # If the Id doesn't exist, add it  to the dictionary
         if sprite_id not in self.image_cache:
-            self.image_cache[sprite_id] = RasterSprite(image, x, y, size)
+            self.image_cache[sprite_id] = RasterSprite(file_path, x, y, size)
             # add the img to the image
             self.draw_sprite_from_cache(sprite_id)
             # Automatically show?
